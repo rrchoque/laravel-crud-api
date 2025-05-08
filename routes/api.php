@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\studentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,22 +15,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/students', function () {
-    return 'Obteniendo la lista de estudiantes';
-});
-
-Route::get('/students/{id}', function ($id) {
-    return 'Obteniendo el estudiante con id: ' . $id;
-});
-
-Route::post('/students', function () {
-    return 'Creando un nuevo estudiante';
-});
-
-Route::put('/students/{id}', function ($id) {
-    return 'Actualizando el estudiante con id: ' . $id;
-});
-
-Route::delete('/students/{id}', function ($id) {
-    return 'Eliminando el estudiante con id: ' . $id;
-});
+Route::get('/students', studentController::class . '@index');
+Route::get('/students/{id}', studentController::class . '@show');
+Route::post('/students', studentController::class . '@store');
+Route::put('/students/{id}', studentController::class . '@update');
+Route::delete('/students/{id}', studentController::class . '@destroy');
