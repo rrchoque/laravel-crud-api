@@ -7,8 +7,34 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * @OA\Info(
+ *     title="API Students",
+ *     version="1.0",
+ *     description="Gestión de estudiantes: listado, creación, edición y eliminación."
+ * )
+ *
+ * @OA\Server(
+ *     url="http://localhost:8000",
+ *     description="Servidor local"
+ * )
+ */
 class studentController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/students",
+     *     summary="Listar todos los estudiantes",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de estudiantes",
+     *    ),
+     *     @OA\Response(
+     *         response="default",
+     *         description="Ha ocurrido un error."
+     *     )
+     * )
+     */
     public function index()
     {
         $students = Student::all();

@@ -1,0 +1,30 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Students",
+        "description": "Gestión de estudiantes: listado, creación, edición y eliminación.",
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Servidor local"
+        }
+    ],
+    "paths": {
+        "/api/students": {
+            "get": {
+                "summary": "Listar todos los estudiantes",
+                "operationId": "1e981a712a2b69da513853e1cf14bb79",
+                "responses": {
+                    "200": {
+                        "description": "Lista de estudiantes"
+                    },
+                    "default": {
+                        "description": "Ha ocurrido un error."
+                    }
+                }
+            }
+        }
+    }
+}
