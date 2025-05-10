@@ -8,10 +8,32 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 /**
+ * @OA\Schema(
+ *     schema="Student",
+ *     title="Student",
+ *     description="Datos de un estudiante",
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="name", type="string", example="Juan Pérez"),
+ *     @OA\Property(property="email", type="string", format="email", example="juan@example.com"),
+ *     @OA\Property(property="phone", type="string", example="+591 70000000"),
+ *     @OA\Property(property="language", type="string", example="Español"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ * 
+ * @OA\Schema(
+ *     schema="StudentRequest",
+ *     required={"name", "email", "phone", "language"},
+ *     @OA\Property(property="name", type="string", example="María Rodríguez"),
+ *     @OA\Property(property="email", type="string", format="email", example="maria@example.com"),
+ *     @OA\Property(property="phone", type="string", example="+591 77777777"),
+ *     @OA\Property(property="language", type="string", example="Inglés")
+ * )
+ * 
  * @OA\Info(
- *     title="API Students",
- *     version="1.0",
- *     description="Gestión de estudiantes: listado, creación, edición y eliminación."
+ *     title="API de Estudiantes",
+ *     version="1.0.0",
+ *     description="API para la gestión de estudiantes: listar, crear, actualizar y eliminar."
  * )
  *
  * @OA\Server(
@@ -24,14 +46,24 @@ class studentController extends Controller
     /**
      * @OA\Get(
      *     path="/api/students",
-     *     summary="Listar todos los estudiantes",
+     *     summary="Listar estudiantes",
+     *     tags={"Students"},
      *     @OA\Response(
      *         response=200,
-     *         description="Lista de estudiantes",
-     *    ),
+     *         description="Lista de estudiantes obtenida exitosamente",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(
+     *                 property="students",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Student")
+     *             )
+     *         )
+     *     ),
      *     @OA\Response(
-     *         response="default",
-     *         description="Ha ocurrido un error."
+     *         response=204,
+     *         description="No se encontraron estudiantes"
      *     )
      * )
      */
@@ -43,7 +75,7 @@ class studentController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'No students found',
-            ], 200);
+            ], 204);
         }
 
         //return $students;
@@ -53,6 +85,33 @@ class studentController extends Controller
         ], 200);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/students/{id}",
+     *     summary="Obtener un estudiante por ID",
+     *     tags={"Students"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID del estudiante",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Estudiante encontrado",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="student", ref="#/components/schemas/Student")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Estudiante no encontrado"
+     *     )
+     * )
+     */
     public function show($id)
     {
         $student = Student::find($id);
@@ -70,6 +129,34 @@ class studentController extends Controller
         ], 200);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/students",
+     *     summary="Crear un nuevo estudiante",
+     *     tags={"Students"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/StudentRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Estudiante creado exitosamente",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="student", ref="#/components/schemas/Student")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error del servidor"
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -102,6 +189,41 @@ class studentController extends Controller
         ], 201);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/students/{id}",
+     *     summary="Actualizar estudiante",
+     *     tags={"Students"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID del estudiante a actualizar",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/StudentRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Estudiante actualizado",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="student", ref="#/components/schemas/Student")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Estudiante no encontrado"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación"
+     *     )
+     * )
+     */
     public function update(Request $request, $id)
     {
         $student = Student::find($id);
@@ -115,7 +237,7 @@ class studentController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'string|max:255',
-            'email' => 'email|max:255|unique:student,email,' . $id,
+            'email' => 'email|max:255|unique:students,email,' . $id, // Corrección: nombre de la tabla
             'phone' => 'string|max:15',
             'language' => 'string|max:10',
         ]);
@@ -135,11 +257,33 @@ class studentController extends Controller
             'student' => $student,
         ], 200);
     }
+
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     *     path="/api/students/{id}",
+     *     summary="Eliminar estudiante",
+     *     tags={"Students"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID del estudiante a eliminar",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Estudiante eliminado",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Estudiante eliminado correctamente")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Estudiante no encontrado"
+     *     )
+     * )
      */
     public function destroy($id)
     {
